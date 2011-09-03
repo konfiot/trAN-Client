@@ -40,7 +40,7 @@ void envoi (SOCKET csock, char *adresse_in){											// Fonction d'envoi par l
 	
 	}
     taille_nom = strlen(nom_fichier) + 1;												// Envoi du nom du fichier
-	temp_taille_nom = htonl(taille_nom);
+    temp_taille_nom = htonl(taille_nom);
     send(csock, (char*)&temp_taille_nom, sizeof(int), 0);
     send(csock, nom_fichier, taille_nom * sizeof(char), 0);
 
@@ -149,7 +149,7 @@ void denvoi (SOCKET csock, char (*fichiers)[MAX_TAILLE_ADRESSE], int nb_fichiers
 			strcat(adresse_absolu_in, "\\");
 		}
 		strcat(adresse_absolu_in, fichiers[i]);
-		temp_taille_chaine = htonl(strlen(fichiers[i]));								// Envoi de l'adresse relative au dossier racine
+		temp_taille_chaine = htonl(strlen(fichiers[i]) + 1);								// Envoi de l'adresse relative au dossier racine
 		send(csock, (char*) &temp_taille_chaine, sizeof(int), 0);
 		send(csock, fichiers[i], (strlen(fichiers[i]) + 1) * sizeof(char), 0);
 
@@ -175,12 +175,12 @@ void dreception (SOCKET sock, char *adresse_out){
 	for (i = 0 ; i < nb_fichiers - 1; i++){
 		recv(sock, (char*) &temp_taille_chaine, sizeof(int), 0);						// Reception du nom du fichier actuel aisi que de sa place dans l'arborescence
 		taille_chaine = ntohl(temp_taille_chaine);
-		nom_fichier = malloc((taille_chaine + 1) * sizeof(char));
-		recv(sock, nom_fichier, (taille_chaine + 1) * sizeof(char), 0);
+		nom_fichier = malloc(taille_chaine * sizeof(char));
+		recv(sock, nom_fichier, taille_chaine * sizeof(char), 0);
 
 		send(sock, &fin, sizeof(char), 0);												// Synchronisation avec le serveur
 
-		strcpy(absolu_temp_adresse_out, adresse_out);									// Cr�ation de l'adresse de sortie
+		strcpy(absolu_temp_adresse_out, adresse_out);									// Creation de l'adresse de sortie
 		if (absolu_temp_adresse_out[strlen(absolu_temp_adresse_out)] != '\\'){
 			strcat(absolu_temp_adresse_out, "\\");
 		}
